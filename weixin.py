@@ -19,6 +19,8 @@ from urlparse import urlparse
 from lxml import html
 import xml.sax.saxutils as saxutils
 import traceback
+import Queue
+import threading
 
 # for media upload
 import mimetypes
@@ -27,7 +29,6 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 PREFIX = '测试'
 # PREFIX = '群聊同步机器人'
-
 
 def catchKeyboardInterrupt(fn):
     def wrapper(*args):
@@ -494,6 +495,7 @@ class WebWeixin(WebWeixinAPI):
         WebWeixinAPI.__init__(self)
         self._group_dict = {} # {group_id, group_info}
         self._sync_group_set = set()
+        self._group_users_queue = Queue.Queue()
 
     def login(self):
         data = self._get(self.redirect_uri)
@@ -578,6 +580,17 @@ class WebWeixin(WebWeixinAPI):
                     # for member in member_list:
                     #     print member
 
+    def updateGroupDictProcess(self):
+        while True:
+            try:
+                logging.info('[updateGroupDictProcess] entering loop: ')
+                group_user_list = self._group_users_queue.get_nowait()
+                logging.info('[updateGroupDictProcess] get list')
+                self.updateGroupDict(group_user_list)
+                logging.info('[updateGroupDictProcess] Updated %s groups' % len(group_user_list))
+            except Queue.Empty:
+                time.sleep(2)
+
     def getUserRemarkName(self, id):
         name = '未知群' if id[:2] == '@@' else '陌生人'
         if id == self.User['UserName']:
@@ -614,6 +627,7 @@ class WebWeixin(WebWeixinAPI):
             if name == member['RemarkName'] or name == member['NickName']:
                 return member['UserName']
         return None
+
 
     def _showMsg(self, message, data=None):
         src_id = None
@@ -787,7 +801,7 @@ class WebWeixin(WebWeixinAPI):
                 for user_id in status_notify_userids.split(','):
                     if user_id.startswith('@@'):
                         group_userid_list.append(user_id)
-                self.updateGroupDict(group_userid_list)
+                self._group_users_queue.put(group_userid_list)
 
             elif msgType == 62:
                 video = self.webwxgetvideo(msgid)
@@ -805,6 +819,9 @@ class WebWeixin(WebWeixinAPI):
                 #    'raw_msg': msg, 'message': '[*] 该消息类型为: %d，可能是表情，图片, 链接或红包' % msg['MsgType']}
 
     def listenMsgMode(self):
+        updateProcess = threading.Thread(target=self.updateGroupDictProcess)
+        updateProcess.start()
+
         logging.debug('[*] 进入消息监听模式 ... 成功')
         self._run('[*] 进行同步线路测试 ... ', self.testsynccheck)
         while True:
@@ -836,7 +853,7 @@ class WebWeixin(WebWeixinAPI):
             except SystemExit:
                 raise
             except:
-                traceback.print_stack()
+                traceback.print_exc()
 
             #if (time.time() - self.lastCheckTs) <= 2:
             #    time.sleep(time.time() - self.lastCheckTs)
