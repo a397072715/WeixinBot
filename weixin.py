@@ -248,8 +248,6 @@ class WebWeixinAPI(object):
         # blabla ...
         return dic['ContactList']
 
-
-
     def testsynccheck(self):
         SyncHost = [
             'webpush.weixin.qq.com',
@@ -663,7 +661,7 @@ class WebWeixin(WebWeixinAPI):
             if msg['raw_msg']['FromUserName'][:2] == '@@':
                 # 接收到来自群的消息
                 if re.search(":<br/>", content, re.IGNORECASE):
-                    [people, content] = content.split(':<br/>')
+                    [people, content] = content.split(':<br/>', 1)
                     groupName = srcName
                     src_id = people
                     srcName = self.getGroupUserRemarkName(msg['raw_msg']['FromUserName'], people);
@@ -697,13 +695,17 @@ class WebWeixin(WebWeixinAPI):
         if groupName == '测试一' and msg['raw_msg']['FromUserName'] == self.User['UserName']:
             if msg_type == 47 and data:
                 self.sendEmotionByUserId(msg['raw_msg']['FromUserName'], data)
+            if msg_type == 1:
+                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
+                self.sendMsgById(self.User['UserName'], word)
 
 
         if msg['raw_msg']['FromUserName'] in self._sync_group_set:
             if msg_type == 1:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName']:
-                        self.sendMsgById(group_id, srcName.strip() + ':' + content)
+                        word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
+                        self.sendMsgById(group_id, word)
             if msg_type == 3:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName']:
@@ -834,8 +836,8 @@ class WebWeixin(WebWeixinAPI):
                 else:
                     r = self.webwxsync()
 
-            if (time.time() - self.lastCheckTs) <= 2:
-                time.sleep(time.time() - self.lastCheckTs)
+            #if (time.time() - self.lastCheckTs) <= 2:
+            #    time.sleep(time.time() - self.lastCheckTs)
 
     def sendMsgById(self, id, word, isfile=False):
         print type(id), id
@@ -926,26 +928,26 @@ class WebWeixin(WebWeixinAPI):
                 logging.debug('[*] 退出微信')
                 exit()
             elif text[:2] == '->':
-                [name, word] = text[2:].split(':')
+                [name, word] = text[2:].split(':', 1)
                 self.sendMsg(name, word)
             elif text[:3] == 'm->':
-                [name, file] = text[3:].split(':')
+                [name, file] = text[3:].split(':', 1)
                 self.sendMsg(name, file, True)
             elif text[:3] == 'f->':
                 print '发送文件'
                 logging.debug('发送文件')
             elif text[:3] == 'i->':
                 print '发送图片'
-                [name, file_name] = text[3:].split(':')
+                [name, file_name] = text[3:].split(':', 1)
                 self.sendImg(name, file_name)
                 logging.debug('发送图片')
             elif text[:3] == 'e->':
                 print '发送表情'
-                [name, file_name] = text[3:].split(':')
+                [name, file_name] = text[3:].split(':', 1)
                 self.sendEmotion(name, file_name)
                 logging.debug('发送表情')
             elif text.startswith('g->'):
-                [name, word] = text[3:].split(':')
+                [name, word] = text[3:].split(':', 1)
                 self.sendMsgById(name, word)
 
 
@@ -1026,11 +1028,13 @@ class WebWeixin(WebWeixinAPI):
 
 def main():
     import coloredlogs
-    coloredlogs.install(level='DEBUG')
+    coloredlogs.install(
+        level='DEBUG',
+        fmt='%(programname)s:%(lineno)d [%(process)d] %(levelname)s %(message)s'
+    )
 
     webwx = WebWeixin()
     webwx.start()
 
 if __name__ == '__main__':
-    logger = logging.getLogger(__name__)
     main()
