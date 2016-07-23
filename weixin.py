@@ -108,6 +108,7 @@ class WebWeixinAPI(object):
         self.saveFolder = os.path.join(os.getcwd(), 'saved')
         self.saveSubFolders = {'webwxgeticon': 'icons', 'webwxgetheadimg': 'headimgs', 'webwxgetmsgimg': 'msgimgs',
                                'webwxgetvideo': 'videos', 'webwxgetvoice': 'voices', '_showQRCodeImg': 'qrcodes',
+                               'webwxgetmsgemotion': 'msgemotions',
         }
         self.appid = 'wx782c26e4c19acffb'
         self.lastCheckTs = time.time()
@@ -429,7 +430,7 @@ class WebWeixinAPI(object):
         return dic['BaseResponse']['Ret'] == 0
 
     def webwxsendmsgemotion(self, user_id, media_id):
-        url = 'https://wx2.qq.com/cgi-bin/mmwebwx-bin/webwxsendemoticon?fun=sys&f=json&pass_ticket=%s' % self.pass_ticket
+        url = 'https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxsendemoticon?fun=sys&f=json&pass_ticket=%s' % self.pass_ticket
         clientMsgId = str(int(time.time() * 1000)) + \
             str(random.random())[:5].replace('.', '')
         data_json = {
@@ -474,12 +475,10 @@ class WebWeixinAPI(object):
         fn = 'img_' + msgid + '.jpg'
         return self._saveFile(fn, data, 'webwxgetmsgimg')
 
-    def webwxgetmsgemoticon(self, msgid):
-        url = self.base_uri + \
-            '/webwxgetemotion?MsgID=%s&skey=%s' % (msgid, self.skey)
+    def webwxgetmsgemotion(self, msgid, url):
         data = self._get(url)
         fn = 'img_' + msgid + '.jpg'
-        return self._saveFile(fn, data, 'webwxgetmsgemoticon')
+        return self._saveFile(fn, data, 'webwxgetmsgemotion')
 
     # Not work now for weixin haven't support this API
     def webwxgetvideo(self, msgid):
@@ -695,13 +694,26 @@ class WebWeixin(WebWeixinAPI):
 
         msg_type = msg['raw_msg']['MsgType']
 
+        if groupName == '测试一' and msg['raw_msg']['FromUserName'] == self.User['UserName']:
+            if msg_type == 47 and data:
+                self.sendEmotionByUserId(msg['raw_msg']['FromUserName'], data)
+
+
         if msg['raw_msg']['FromUserName'] in self._sync_group_set:
             if msg_type == 1:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName']:
                         self.sendMsgById(group_id, srcName.strip() + ':' + content)
             if msg_type == 3:
-                self.sendImgByUserId(self.User['UserName'], data)
+                for group_id in self._sync_group_set:
+                    if group_id != msg['raw_msg']['FromUserName']:
+                        self.sendMsgById(group_id, srcName.strip() + ':')
+                        self.sendImgByUserId(group_id, data)
+            if msg_type == 47:
+                for group_id in self._sync_group_set:
+                    if group_id != msg['raw_msg']['FromUserName']:
+                        self.sendMsgById(group_id, srcName.strip() + ':')
+                        self.sendEmotionByUserId(group_id, data)
 
     def handleMsg(self, r):
         for msg in r['AddMsgList']:
@@ -747,7 +759,8 @@ class WebWeixin(WebWeixinAPI):
                 url = self._searchContent('cdnurl', content)
                 raw_msg = {'raw_msg': msg,
                            'message': '%s 发了一个动画表情，点击下面链接查看: %s' % (name, url)}
-                self._showMsg(raw_msg)
+                data = self.webwxgetmsgemotion(msgid, url) if url != '未知' else None
+                self._showMsg(raw_msg, data)
             elif msgType == 49:
                 appMsgType = defaultdict(lambda: "")
                 appMsgType.update({5: '链接', 3: '音乐', 7: '微博'})
@@ -863,13 +876,16 @@ class WebWeixin(WebWeixinAPI):
         user_id = self.getUSerID(name)
         return self.sendImgByUserId(user_id, file_name)
 
-    def sendEmotion(self, name, file_name):
+    def sendEmotionByUserId(self, user_id, file_name):
         response = self.webwxuploadmedia(file_name)
         media_id = ""
         if response is not None:
             media_id = response['MediaId']
-        user_id = self.getUSerID(name)
         response = self.webwxsendmsgemotion(user_id, media_id)
+
+    def sendEmotion(self, name, file_name):
+        user_id = self.getUSerID(name)
+        return self.sendEmotionByUserId(user_id, file_name)
 
     @catchKeyboardInterrupt
     def start(self):
