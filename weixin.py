@@ -17,7 +17,6 @@ import logging
 from collections import defaultdict
 from urlparse import urlparse
 from lxml import html
-import hashlib
 import xml.sax.saxutils as saxutils
 import traceback
 
@@ -50,13 +49,6 @@ def _decode_list(data):
             item = _decode_dict(item)
         rv.append(item)
     return rv
-
-def md5(fname):
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
 
 def _decode_dict(data):
     rv = {}
@@ -706,17 +698,17 @@ class WebWeixin(WebWeixinAPI):
             if msg_type == 1:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName']:
-                        word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
+                        word = srcName.strip() + '：\n' + content.replace('<br/>', '\n').strip()
                         self.sendMsgById(group_id, word)
             if msg_type == 3:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName']:
-                        self.sendMsgById(group_id, srcName.strip() + ':')
+                        self.sendMsgById(group_id, srcName.strip() + '：')
                         self.sendImgByUserId(group_id, data)
             if msg_type == 47:
                 for group_id in self._sync_group_set:
                     if group_id != msg['raw_msg']['FromUserName'] and data:
-                        self.sendMsgById(group_id, srcName.strip() + ':')
+                        self.sendMsgById(group_id, srcName.strip() + '：')
                         self.sendEmotionByUserId(group_id, data)
 
     def handleMsg(self, r):
@@ -841,6 +833,8 @@ class WebWeixin(WebWeixinAPI):
                         time.sleep(1)
                     else:
                         r = self.webwxsync()
+            except SystemExit:
+                raise
             except:
                 traceback.print_stack()
 
