@@ -19,10 +19,12 @@ from urlparse import urlparse
 from lxml import html
 import hashlib
 import xml.sax.saxutils as saxutils
+import traceback
 
 # for media upload
 import mimetypes
 from requests_toolbelt.multipart.encoder import MultipartEncoder
+
 
 PREFIX = '测试'
 # PREFIX = '群聊同步机器人'
@@ -814,30 +816,33 @@ class WebWeixin(WebWeixinAPI):
         logging.debug('[*] 进入消息监听模式 ... 成功')
         self._run('[*] 进行同步线路测试 ... ', self.testsynccheck)
         while True:
-            self.lastCheckTs = time.time()
-            [retcode, selector] = self.synccheck()
-            logging.debug('retcode: %s, selector: %s' % (retcode, selector))
-            if retcode == '1100':
-                logging.debug('[*] 你在手机上登出了微信，债见')
-                exit()
-            if retcode == '1101':
-                logging.debug('[*] 你在其他地方登录了 WEB 版微信，债见')
-                exit()
-            elif retcode == '0':
-                if selector == '2':
-                    r = self.webwxsync()
-                    if r is not None:
-                        self.handleMsg(r)
-                elif selector == '6':
-                    r = self.webwxsync()
-                    # logging.debug('[*] 收到疑似红包消息 %d 次' % redEnvelope)
-                elif selector == '7':
-                    # logging.debug('[*] 你在手机上玩微信被我发现了 %d 次' % playWeChat)
-                    r = self.webwxsync()
-                elif selector == '0':
-                    time.sleep(1)
-                else:
-                    r = self.webwxsync()
+            try:
+                self.lastCheckTs = time.time()
+                [retcode, selector] = self.synccheck()
+                logging.debug('retcode: %s, selector: %s' % (retcode, selector))
+                if retcode == '1100':
+                    logging.debug('[*] 你在手机上登出了微信，债见')
+                    exit()
+                if retcode == '1101':
+                    logging.debug('[*] 你在其他地方登录了 WEB 版微信，债见')
+                    exit()
+                elif retcode == '0':
+                    if selector == '2':
+                        r = self.webwxsync()
+                        if r is not None:
+                            self.handleMsg(r)
+                    elif selector == '6':
+                        r = self.webwxsync()
+                        # logging.debug('[*] 收到疑似红包消息 %d 次' % redEnvelope)
+                    elif selector == '7':
+                        # logging.debug('[*] 你在手机上玩微信被我发现了 %d 次' % playWeChat)
+                        r = self.webwxsync()
+                    elif selector == '0':
+                        time.sleep(1)
+                    else:
+                        r = self.webwxsync()
+            except:
+                traceback.print_stack()
 
             #if (time.time() - self.lastCheckTs) <= 2:
             #    time.sleep(time.time() - self.lastCheckTs)
