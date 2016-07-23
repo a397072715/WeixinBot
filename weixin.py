@@ -18,6 +18,7 @@ from collections import defaultdict
 from urlparse import urlparse
 from lxml import html
 import hashlib
+import xml.sax.saxutils as saxutils
 
 # for media upload
 import mimetypes
@@ -558,8 +559,8 @@ class WebWeixin(WebWeixinAPI):
                 for member in member_list:
                     if member['UserName'] == user_id:
                         user_name = member['DisplayName'] if member['DisplayName'] else member['NickName']
-        return user_name + '#' + group_name
-
+        result = saxutils.unescape('【' + user_name + '】【' + group_name + '】')
+        return result
 
     def getNameById(self, id):
         return self.webwxbatchgetcontact([id])
@@ -636,8 +637,7 @@ class WebWeixin(WebWeixinAPI):
             srcName = self.getUserRemarkName(src_id)
             dst_id = msg['raw_msg']['ToUserName']
             dstName = self.getUserRemarkName(dst_id)
-            content = msg['raw_msg']['Content'].replace(
-                '&lt;', '<').replace('&gt;', '>')
+            content = saxutils.unescape(msg['raw_msg']['Content'])
             # message_id = msg['raw_msg']['MsgId']
 
             if content.find('http://weixin.qq.com/cgi-bin/redirectforward?args=') != -1:
@@ -713,7 +713,7 @@ class WebWeixin(WebWeixinAPI):
                         self.sendImgByUserId(group_id, data)
             if msg_type == 47:
                 for group_id in self._sync_group_set:
-                    if group_id != msg['raw_msg']['FromUserName']:
+                    if group_id != msg['raw_msg']['FromUserName'] and data:
                         self.sendMsgById(group_id, srcName.strip() + ':')
                         self.sendEmotionByUserId(group_id, data)
 
@@ -761,7 +761,10 @@ class WebWeixin(WebWeixinAPI):
                 url = self._searchContent('cdnurl', content)
                 raw_msg = {'raw_msg': msg,
                            'message': '%s 发了一个动画表情，点击下面链接查看: %s' % (name, url)}
-                data = self.webwxgetmsgemotion(msgid, url) if url != '未知' else None
+                if url == '未知':
+                    data = None
+                else:
+                    data = self.webwxgetmsgemotion(msgid, url)
                 self._showMsg(raw_msg, data)
             elif msgType == 49:
                 appMsgType = defaultdict(lambda: "")
@@ -1030,7 +1033,7 @@ def main():
     import coloredlogs
     coloredlogs.install(
         level='DEBUG',
-        fmt='%(programname)s:%(lineno)d [%(process)d] %(levelname)s %(message)s'
+        fmt='%(asctime)s %(programname)s:%(lineno)d [%(process)d] %(levelname)s %(message)s'
     )
 
     webwx = WebWeixin()
