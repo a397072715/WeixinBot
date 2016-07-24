@@ -1,7 +1,7 @@
 # WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot) [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot/fork) 
 ![python](https://img.shields.io/badge/python-2.7-ff69b4.svg)
 
-网页版微信API，包含终端版微信
+网页版微信API，包含终端版微信，用于MSRA Alumni在不同群之间交流。
 
 ## Remark
 
@@ -13,6 +13,7 @@
 * [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现, https://github.com/Urinx/WeixinBot/issues/61 和 https://github.com/Urinx/WeixinBot/issues/49 都有描述
 * log持久化和切割
 * 代码重构，API和业务逻辑耦合得太紧密，不利于adapt到其他的应用场景
+* 显示群名重写成①②③④⑤⑥⑦⑧⑨⑩.
 
 ### Limitations (of WebWeChatAPI)
 
@@ -779,8 +780,11 @@ Content:
 - [x] 群发消息
 - [ ] 补充更多的接口及完善文档
 
-## 相关repo
+## Related Projets
 
 * https://github.com/zixia/wechaty
+* https://github.com/stonexer/wechatBot 网页版微信机器人
+* https://github.com/spacelan/weixin-bot-chrome-extension Chrome插件版
+* https://github.com/lu4kyd0y/WeChat-Cloud-Robot 微信云端机器人框架
 
 P.S. 还有啥要补充的也可以在[issue #8](https://github.com/Urinx/WeixinBot/issues/8)下留言
