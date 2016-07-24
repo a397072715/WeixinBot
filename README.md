@@ -30,7 +30,7 @@
     sudo apt-get install screen
 
 ## Demo
-为了运行 `weixin.py` 示例脚本，你需要有安装 `qrcode` 包，你可以通过 `pip install qrcode` 来安装。
+运行 `weixin.py` 运行结果如下
 
 ![1](screenshot/1.png)
 
