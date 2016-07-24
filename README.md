@@ -1,4 +1,6 @@
-# WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=Urinx&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/Urinx/WeixinBot) [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=Urinx&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/Urinx/WeixinBot/fork) ![python](https://img.shields.io/badge/python-2.7-ff69b4.svg)
+# WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot) 
+[![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot/fork) 
+![python](https://img.shields.io/badge/python-2.7-ff69b4.svg)
 
 网页版微信API，包含终端版微信及微信机器人
 
@@ -9,7 +11,7 @@
 * 检查群昵称是否满足条件，否则发出提醒。
 * 每隔一段时间(1h?)向大家报告自己还活着。
 * 消息撤回
-* [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现
+* [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现, https://github.com/Urinx/WeixinBot/issues/61 也有描述
 * log持久化和切割
 * 代码重构，API和业务逻辑耦合得太紧密，不利于adapt到其他的应用场景
 
