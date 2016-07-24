@@ -2,7 +2,7 @@
 [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot/fork) 
 ![python](https://img.shields.io/badge/python-2.7-ff69b4.svg)
 
-网页版微信API，包含终端版微信及微信机器人
+网页版微信API，包含终端版微信
 
 ## Remark
 
@@ -11,7 +11,7 @@
 * 检查群昵称是否满足条件，否则发出提醒。
 * 每隔一段时间(1h?)向大家报告自己还活着。
 * 消息撤回
-* [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现, https://github.com/Urinx/WeixinBot/issues/61 也有描述
+* [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现, https://github.com/Urinx/WeixinBot/issues/61 和 https://github.com/Urinx/WeixinBot/issues/49 都有描述
 * log持久化和切割
 * 代码重构，API和业务逻辑耦合得太紧密，不利于adapt到其他的应用场景
 
@@ -779,5 +779,9 @@ Content:
 - [ ] 建立群聊
 - [x] 群发消息
 - [ ] 补充更多的接口及完善文档
+
+## 相关repo
+
+* https://github.com/zixia/wechaty
 
 P.S. 还有啥要补充的也可以在[issue #8](https://github.com/Urinx/WeixinBot/issues/8)下留言
