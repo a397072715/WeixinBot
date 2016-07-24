@@ -9,20 +9,24 @@
 * 检查群昵称是否满足条件，否则发出提醒。
 * 每隔一段时间(1h?)向大家报告自己还活着。
 * 消息撤回
-* [BUG] 发送图片后，狂报retcode: 0, selector: 2
+* [BUG] 发送图片后，狂报retcode: 0, selector: 2, 可以稳定复现
 * log持久化和切割
+* 代码重构，API和业务逻辑耦合得太紧密，不利于adapt到其他的应用场景
 
 ### Limitations (of WebWeChatAPI)
 
 * 对于名片，通过浏览器抓包只能抓到UserID，抓不到微信名，所以对于名片的转发似乎不可行。
-l 对于at功能，貌似Web微信不支持at人，想通过浏览器抓包都不知道怎么发请求。mac的微信客户端支持at，不过用charles抓到的都是乱码，等待抓包能手。
+* 对于at功能，貌似Web微信不支持at人，想通过浏览器抓包都不知道怎么发请求。
+  mac的微信客户端支持at，不过用charles抓到的都是乱码，等待抓包能手。
 
 ### Environment
 
 依赖的python包
+
     sudo pip install qrcode lxml requests_toolbelt coloredlogs
 
 此外建议运行的时候用screen
+
     sudo apt-get install screen
 
 ## Demo
@@ -110,7 +114,6 @@ window.QRLogin.code = 200; window.QRLogin.uuid = "xxx"
 ```
 > 注：这里的appid就是在微信开放平台注册的应用的AppID。网页版微信有两个AppID，早期的是`wx782c26e4c19acffb`，在微信客户端上显示为应用名称为`Web微信`；现在用的是`wxeb7ec651dd0aefa9`，显示名称为`微信网页版`。
 
-![6](screenshot/8.jpg)
 <br>
 
 | API | 生成二维码 |
