@@ -1,4 +1,5 @@
-# WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot) [![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot/fork) 
+# WeixinBot [![star this repo](http://github-svg-buttons.herokuapp.com/star.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot) \
+[![fork this repo](http://github-svg-buttons.herokuapp.com/fork.svg?user=buaagg&repo=WeixinBot&style=flat&background=1081C1)](http://github.com/buaagg/WeixinBot/fork) \
 ![python](https://img.shields.io/badge/python-2.7-ff69b4.svg)
 
 网页版微信API，包含终端版微信，用于MSRA Alumni在不同群之间交流。
@@ -787,4 +788,3 @@ Content:
 * https://github.com/spacelan/weixin-bot-chrome-extension Chrome插件版
 * https://github.com/lu4kyd0y/WeChat-Cloud-Robot 微信云端机器人框架
 
-P.S. 还有啥要补充的也可以在[issue #8](https://github.com/Urinx/WeixinBot/issues/8)下留言
