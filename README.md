@@ -2,6 +2,18 @@
 
 网页版微信API，包含终端版微信及微信机器人
 
+## Remark
+
+### Todo
+
+### Doing
+
+* 支持@功能
+
+### Limitations (of WebWeChatAPI)
+
+* 对于名片，WeWeChat只能抓到UserID，抓不到微信名，所以对于名片的转发似乎不可行。
+
 ## Demo
 为了运行 `weixin.py` 示例脚本，你需要有安装 `qrcode` 包，你可以通过 `pip install qrcode` 来安装。
 
