@@ -806,9 +806,11 @@ class WebWeixin(WebWeixinAPI):
                 }
                 raw_msg = {'raw_msg': msg, 'message': '%s 分享了一个%s: %s' % (
                     name, appMsgType[msg['AppMsgType']], json.dumps(card))}
+                url = unescape(msg['Url'])
+
                 data = '分享了一个%s:\n' % (appMsgType[msg['AppMsgType']])
                 data += '标题: %s\n' % msg['FileName']
-                data += '链接: %s' % msg['Url']
+                data += '链接: %s' % url
                 self._showMsg(raw_msg, data)
 
             elif msgType == 51:
