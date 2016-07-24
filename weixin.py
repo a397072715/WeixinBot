@@ -65,6 +65,12 @@ def _decode_dict(data):
         rv[key] = value
     return rv
 
+def unescape(text):
+    text = saxutils.unescape(text)
+    text = re.sub('<span\s+class\s*="emoji\s+emoji([0-9A-Fa-f]+)"\s*>\s*<\s*/span>',
+                  lambda s: ("\\U%08x" % int(s.group(1), 16)).decode('unicode-escape').encode('utf8'),
+                  text)
+    return text
 
 class WebWeixinAPI(object):
     def __str__(self):
@@ -555,7 +561,7 @@ class WebWeixin(WebWeixinAPI):
                 for member in member_list:
                     if member['UserName'] == user_id:
                         user_name = member['DisplayName'] if member['DisplayName'] else member['NickName']
-        result = saxutils.unescape('【' + user_name + '】【' + group_name + '】')
+        result = unescape('【' + user_name + '】【' + group_name + '】')
         return result
 
     def getNameById(self, id):
@@ -584,7 +590,7 @@ class WebWeixin(WebWeixinAPI):
         while True:
             try:
                 logging.info('[updateGroupDictProcess] entering loop: ')
-                group_user_list = self._group_users_queue.get_nowait()
+                group_user_list = self._group_users_queue.get(block=True)
                 logging.info('[updateGroupDictProcess] get list')
                 self.updateGroupDict(group_user_list)
                 logging.info('[updateGroupDictProcess] Updated %s groups' % len(group_user_list))
@@ -645,7 +651,7 @@ class WebWeixin(WebWeixinAPI):
             srcName = self.getUserRemarkName(src_id)
             dst_id = msg['raw_msg']['ToUserName']
             dstName = self.getUserRemarkName(dst_id)
-            content = saxutils.unescape(msg['raw_msg']['Content'])
+            content = unescape(msg['raw_msg']['Content'])
             # message_id = msg['raw_msg']['MsgId']
 
             if content.find('http://weixin.qq.com/cgi-bin/redirectforward?args=') != -1:
@@ -704,7 +710,9 @@ class WebWeixin(WebWeixinAPI):
             if msg_type == 47 and data:
                 self.sendEmotionByUserId(msg['raw_msg']['FromUserName'], data)
             if msg_type == 1:
-                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
+                content = re.sub('<span\s+class\s*="emoji\s+emoji([0-9A-Fa-f]+)"\s*>\s*<\s*/span>', lambda s: ("\\U%08x" % int(s.group(1), 16)).decode('unicode-escape').encode('utf8'), '<span class="emoji emoji1f62a"></span>')
+
+                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip() + '\xF0\x9F\x98\x84'
                 self.sendMsgById(self.User['UserName'], word)
 
 
