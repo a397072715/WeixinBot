@@ -6,13 +6,25 @@
 
 ### Todo
 
-### Doing
+* 检查群昵称是否满足条件，否则发出提醒。
+* 每隔一段时间(1h?)向大家报告自己还活着。
+* 链接分享
+* 消息撤回
 
-* 支持@功能
+### Doing
 
 ### Limitations (of WebWeChatAPI)
 
-* 对于名片，WeWeChat只能抓到UserID，抓不到微信名，所以对于名片的转发似乎不可行。
+* 对于名片，通过浏览器抓包只能抓到UserID，抓不到微信名，所以对于名片的转发似乎不可行。
+* 对于at功能，貌似Web微信不支持at人，想通过浏览器抓包都不知道怎么发请求。mac的微信客户端支持at，不过用charles抓到的都是乱码，等待抓包能手。
+
+### Environment
+
+依赖的python包
+    sudo pip install qrcode lxml requests_toolbelt coloredlogs
+
+此外建议运行的时候用screen
+    sudo apt-get install screen
 
 ## Demo
 为了运行 `weixin.py` 示例脚本，你需要有安装 `qrcode` 包，你可以通过 `pip install qrcode` 来安装。

@@ -710,11 +710,8 @@ class WebWeixin(WebWeixinAPI):
             if msg_type == 47 and data:
                 self.sendEmotionByUserId(msg['raw_msg']['FromUserName'], data)
             if msg_type == 1:
-                content = re.sub('<span\s+class\s*="emoji\s+emoji([0-9A-Fa-f]+)"\s*>\s*<\s*/span>', lambda s: ("\\U%08x" % int(s.group(1), 16)).decode('unicode-escape').encode('utf8'), '<span class="emoji emoji1f62a"></span>')
-
-                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip() + '\xF0\x9F\x98\x84'
+                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
                 self.sendMsgById(self.User['UserName'], word)
-
 
         if msg['raw_msg']['FromUserName'] in self._sync_group_set:
             if msg_type == 1:
