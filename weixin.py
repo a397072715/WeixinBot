@@ -12,7 +12,6 @@ import re
 import sys
 import os
 import random
-import multiprocessing
 import logging
 from collections import defaultdict
 from urlparse import urlparse
@@ -26,8 +25,7 @@ import threading
 import mimetypes
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-
-PREFIX = '测试'
+PREFIX = '西码会'
 # PREFIX = '群聊同步机器人'
 
 def catchKeyboardInterrupt(fn):
@@ -855,6 +853,9 @@ class WebWeixin(WebWeixinAPI):
                     exit()
                 if retcode == '1101':
                     logging.debug('[*] 你在其他地方登录了 WEB 版微信，债见')
+                    exit()
+                if retcode == '1102':
+                    logging.debug('[*] 你在手机上主动退出啦，债见')
                     exit()
                 elif retcode == '0':
                     if selector == '2':
