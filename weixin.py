@@ -710,7 +710,11 @@ class WebWeixin(WebWeixinAPI):
             if msg_type == 47 and data:
                 self.sendEmotionByUserId(msg['raw_msg']['FromUserName'], data)
             if msg_type == 1:
-                word = srcName.strip() + ':' + content.replace('<br/>', '\n').strip()
+                word = srcName.strip() + ':' + content
+                self.sendMsgById(self.User['UserName'], word)
+            if msg_type == 49:
+                word = srcName.strip() + '：\n' + data
+                print 'word=====', word
                 self.sendMsgById(self.User['UserName'], word)
 
         if msg['raw_msg']['FromUserName'] in self._sync_group_set:
@@ -729,6 +733,11 @@ class WebWeixin(WebWeixinAPI):
                     if group_id != msg['raw_msg']['FromUserName'] and data:
                         self.sendMsgById(group_id, srcName.strip() + '：')
                         self.sendEmotionByUserId(group_id, data)
+            if msg_type == 49:
+                for group_id in self._sync_group_set:
+                    if group_id != msg['raw_msg']['FromUserName'] and data:
+                        word = srcName.strip() + '：\n' + data
+                        self.sendMsgById(group_id, word)
 
     def handleMsg(self, r):
         for msg in r['AddMsgList']:
@@ -797,7 +806,11 @@ class WebWeixin(WebWeixinAPI):
                 }
                 raw_msg = {'raw_msg': msg, 'message': '%s 分享了一个%s: %s' % (
                     name, appMsgType[msg['AppMsgType']], json.dumps(card))}
-                self._showMsg(raw_msg)
+                data = '分享了一个%s:\n' % (appMsgType[msg['AppMsgType']])
+                data += '标题: %s\n' % msg['FileName']
+                data += '链接: %s' % msg['Url']
+                self._showMsg(raw_msg, data)
+
             elif msgType == 51:
                 raw_msg = {'raw_msg': msg, 'message': '[*] 成功获取联系人信息'}
                 self._showMsg(raw_msg)
@@ -825,6 +838,7 @@ class WebWeixin(WebWeixinAPI):
 
     def listenMsgMode(self):
         updateProcess = threading.Thread(target=self.updateGroupDictProcess)
+        updateProcess.daemon = True
         updateProcess.start()
 
         logging.debug('[*] 进入消息监听模式 ... 成功')
@@ -855,6 +869,8 @@ class WebWeixin(WebWeixinAPI):
                         time.sleep(1)
                     else:
                         r = self.webwxsync()
+            except KeyboardInterrupt:
+                raise
             except SystemExit:
                 raise
             except:
@@ -942,7 +958,8 @@ class WebWeixin(WebWeixinAPI):
             print self
         logging.debug(self)
 
-        listenProcess = multiprocessing.Process(target=self.listenMsgMode)
+        listenProcess = threading.Thread(target=self.listenMsgMode)
+        listenProcess.daemon = True
         listenProcess.start()
 
         while True:
